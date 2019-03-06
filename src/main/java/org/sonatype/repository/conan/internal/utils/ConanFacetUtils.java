@@ -12,6 +12,7 @@
  */
 package org.sonatype.repository.conan.internal.utils;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -31,6 +32,7 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
 
 /**
  * @since 0.0.1
@@ -57,8 +59,14 @@ public class ConanFacetUtils
             .build(),
         singletonList(repository)
     );
-    if (components.iterator().hasNext()) {
-      return components.iterator().next();
+    Iterator<Component> iterator = components.iterator();
+    while (iterator.hasNext()) {
+      Component c = iterator.next();
+      Object state = c.attributes().get(STATE);
+
+      if (coords.getChannel().equals(state)) {
+        return c;
+      }
     }
     return null;
   }

@@ -38,7 +38,8 @@ public class ConanManifest
    */
   public static AttributesMap parse(TempBlob blob) {
     AttributesMap attributesMap = new AttributesMap();
-    try(BufferedReader reader = new BufferedReader(new InputStreamReader(blob.get()))) {
+    try(BufferedReader reader
+                = new BufferedReader(new InputStreamReader(blob.get()))) {
       String line;
       while ((line = reader.readLine()) != null) {
         String[] split = line.split(":");

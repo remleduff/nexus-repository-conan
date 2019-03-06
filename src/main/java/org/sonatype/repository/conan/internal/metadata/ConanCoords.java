@@ -14,6 +14,8 @@ package org.sonatype.repository.conan.internal.metadata;
 
 import javax.annotation.Nullable;
 
+import org.sonatype.nexus.common.collect.NestedAttributesMap;
+import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -50,6 +52,28 @@ public class ConanCoords
     this.version = checkNotNull(version);
     this.channel = checkNotNull(channel);
     this.sha = sha;
+  }
+
+    public static ConanCoords fromComponent(Component c) {
+      NestedAttributesMap m = c.attributes();
+      String project = safeGetAttribute(m, PROJECT, c.name());
+      String group = safeGetAttribute(m, GROUP, c.group());
+      String version = safeGetAttribute(m, VERSION, c.version());
+      String channel = safeGetAttribute(m, STATE, null);
+      return new ConanCoords(
+              group, project, version, channel, null
+      );
+    }
+
+  private static String safeGetAttribute(NestedAttributesMap m, String attributeName, String value) {
+    String result = (String) m.get(attributeName);
+    if (result == null) {
+      result = value;
+    }
+    if (result == null) {
+      result = "null";
+    }
+    return result;
   }
 
   public String getGroup() {
@@ -89,5 +113,14 @@ public class ConanCoords
         coord.getVersion(),
         coord.getChannel(),
         coord.getSha() == null ? "" : "/packages/" + coord.getSha());
+  }
+
+  public static String getSpec(ConanCoords coord) {
+    return String.format("%s/%s@%s/%s",
+            coord.getProject(),
+            coord.getVersion(),
+            coord.getGroup(),
+            coord.getChannel()
+    );
   }
 }
